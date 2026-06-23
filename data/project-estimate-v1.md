@@ -25,7 +25,7 @@
 **Contingency:** 145% applied to base hours for the high range
 **Estimated Timeline:** ~11-16 working days (~2.2-3.25 weeks) at 1.5 FTE
 
-**Required Scope:** 70 dev hours · **Optional Scope (⭐):** 26 dev hours
+**Required Scope:** 76 dev hours · **Optional Scope (⭐):** 20 dev hours
 
 **Monthly Recurring:** Hosting and Support (SLA) on Chrono managed infrastructure — at the client's charge (TBD)
 
@@ -48,7 +48,7 @@
 |-------|------|------------|-------|-------|------|
 | 1 | Backend | Mandatory | 6 | 16 | $2,640 |
 | 2 | Vendor Integration — Sysco | 1 | 6 | 18 | $2,970 |
-| 3 | Vendor Integration — Costco ⭐ | 1 | 3 | 8 | $1,320 |
+| 3 | Vendor Integration — Costco | 1 | 3 | 8 | $1,320 |
 | 4 | Vendor Integration — Central Kitchen | 1 | 3 | 8 | $1,320 |
 | 5 | Catalog Management | 1 | 1 | 16 | $2,640 |
 | 6 | PO Management | 1, 5 | 4 | 0 | $0 |
@@ -59,13 +59,12 @@
 
 | Category | Tasks | Hours | Cost |
 |----------|-------|-------|------|
-| **Required** | 35 | 70 | $11,550 |
-| **Optional (⭐)** | 8 | 26 | $4,290 |
+| **Required** | 36 | 76 | $12,540 |
+| **Optional (⭐)** | 7 | 20 | $3,300 |
 | **GRAND TOTAL (Dev)** | **43** | **96** | **$15,840** |
 
 **Notes:**
 - Optional items are marked with ⭐ and can be deferred. They total 26 dev hours.
-- Phase 3 (Vendor Integration — Costco) is entirely optional.
 - Several line items are scoped at 0 days: they are sub-steps whose effort is captured by their parent build task (the PO management build effort sits under Frontend; backend PO management and Test are listed for scope clarity).
 
 ---
@@ -109,16 +108,16 @@
 ---
 
 ### Phase 3: Vendor Integration — Costco
-**Status:** OPTIONAL
+**Status:** REQUIRED
 **Goal:** Send purchase orders to Costco by email (Costco is email-only)
 
 | Task | Size | Hours | Cost |
 |------|------|-------|------|
-| Email integration — Costco ⭐ | 0.75 d | 6 | $990 |
+| Email integration — Costco | 0.75 d | 6 | $990 |
 | Edit destination email / client # (super admin only) per branch | — | 0 | $0 |
 | Manually attach invoice to PO (file upload) ⭐ | 0.25 d | 2 | $330 |
 
-**Phase 3 Total:** 8 hours · $1,320 — OPTIONAL
+**Phase 3 Total:** 8 hours · $1,320
 
 ---
 
