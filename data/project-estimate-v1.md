@@ -75,9 +75,9 @@
 | Task | Size | Hours | Cost |
 |------|------|-------|------|
 | Authentication (login, password reset) — no registration | S | 4 | $660 |
-| Audit trail on all user actions in the platform | L | 8 | $1,320 |
-| Branches management (LCRUA) | XS | 2 | $330 |
-| User management | XS | 2 | $330 |
+| Audit trail on all user actions in the platform | M | 8 | $1,320 |
+| Branches management (LCRUA) | S | 2 | $330 |
+| User management | S | 2 | $330 |
 | User management — LCRUA | — | 0 | $0 |
 | User management — Assignation to N branches | — | 0 | $0 |
 
@@ -91,12 +91,12 @@
 
 | Task | Size | Hours | Cost |
 |------|------|-------|------|
-| Sysco PO submission integration (SFTP / API) | XL | 16 | $2,640 |
+| Sysco PO submission integration (SFTP / API) | L | 16 | $2,640 |
 | Manage integration per branch (client #, contact, API key) | — | 0 | $0 |
 | EDI integration layer — Sysco (deposit PO on their system) | — | 0 | $0 |
 | Acknowledgement polling job per PO | — | 0 | $0 |
 | Invoice reception polling job per PO | — | 0 | $0 |
-| Invoice link to PO ⭐ | XS | 2 | $330 |
+| Invoice link to PO ⭐ | S | 2 | $330 |
 
 **Phase 2 Total:** 18 hours · $2,970
 
@@ -112,7 +112,7 @@
 |------|------|-------|------|
 | Email integration — Costco | M | 6 | $990 |
 | Edit destination email / client # (super admin only) per branch | — | 0 | $0 |
-| Manually attach invoice to PO (file upload) ⭐ | XS | 2 | $330 |
+| Manually attach invoice to PO (file upload) ⭐ | S | 2 | $330 |
 
 **Phase 3 Total:** 8 hours · $1,320
 
@@ -126,7 +126,7 @@
 |------|------|-------|------|
 | Email integration — Central Kitchen | M | 6 | $990 |
 | Edit destination email / client # (super admin only) per branch | — | 0 | $0 |
-| Manually attach invoice to PO (file upload) ⭐ | XS | 2 | $330 |
+| Manually attach invoice to PO (file upload) ⭐ | S | 2 | $330 |
 
 **Phase 4 Total:** 8 hours · $1,320
 
@@ -138,9 +138,9 @@
 
 | Task | Size | Hours | Cost |
 |------|------|-------|------|
-| Catalog management — LCRUA Produit (list, add, edit, read, archive) | XL | 16 | $2,640 |
-| Preferred supplier with fallback system | L | 8 | $1,320 |
-| Automatic system to send PO to the next preferred supplier | L | 8 | $1,320 |
+| Catalog management — LCRUA Produit (list, add, edit, read, archive) | L | 16 | $2,640 |
+| Preferred supplier with fallback system | M | 8 | $1,320 |
+| Automatic system to send PO to the next preferred supplier | M | 8 | $1,320 |
 
 **Phase 5 Total:** 32 hours · $5,280
 
@@ -170,9 +170,9 @@
 | Task | Size | Hours | Cost |
 |------|------|-------|------|
 | Design System | — | 0 | $0 |
-| i18n (multi-language support) ⭐ | L | 8 | $1,320 |
+| i18n (multi-language support) ⭐ | M | 8 | $1,320 |
 | User management | — | 0 | $0 |
-| Consult audit trail ⭐ | XS | 2 | $330 |
+| Consult audit trail ⭐ | S | 2 | $330 |
 | Authentication (login, password reset) — no registration | — | 0 | $0 |
 | Mobile responsiveness ⭐ | S | 4 | $660 |
 | Catalog management (LCRUA) | — | 0 | $0 |
@@ -182,7 +182,7 @@
 | User management — Assignation to N branches | — | 0 | $0 |
 | Catalog management | — | 0 | $0 |
 | LCRUA Products (list, add, edit, read, archive) | — | 0 | $0 |
-| PO management | XL | 16 | $2,640 |
+| PO management | L | 16 | $2,640 |
 | PO — List, Create, Read | — | 0 | $0 |
 | PO — Update (mark item as backordered) | — | 0 | $0 |
 | PO — Mark as draft vs send PO | — | 0 | $0 |
