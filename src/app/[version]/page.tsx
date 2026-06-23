@@ -66,8 +66,7 @@ export default async function VersionPage({
             Internal Quote — Estimate Calculator
           </h1>
           <p className="mt-4 text-base sm:text-lg text-zinc-400 max-w-2xl leading-relaxed">
-            Select phases to calculate total project effort. PM (20%) and QA
-            (15%) are applied automatically.
+            Select phases to calculate total project effort.
           </p>
           <div className="mt-6 sm:mt-8 p-3 sm:p-4 rounded-lg bg-white/5 border border-white/10 text-sm text-zinc-400 leading-relaxed max-w-3xl">
             This is a <strong className="text-zinc-200">high-level estimate</strong> for
