@@ -46,25 +46,27 @@
 
 | Phase | Name | Dependency | Tasks | Hours | Cost |
 |-------|------|------------|-------|-------|------|
-| 1 | Backend | Mandatory | 4 | 16 | $2,640 |
-| 2 | Vendor Integration — Sysco | 1 | 2 | 18 | $2,970 |
-| 3 | Vendor Integration — Costco ⭐ | 1 | 2 | 8 | $1,320 |
-| 4 | Vendor Integration — Central Kitchen | 1 | 2 | 8 | $1,320 |
+| 1 | Backend | Mandatory | 6 | 16 | $2,640 |
+| 2 | Vendor Integration — Sysco | 1 | 6 | 18 | $2,970 |
+| 3 | Vendor Integration — Costco ⭐ | 1 | 3 | 8 | $1,320 |
+| 4 | Vendor Integration — Central Kitchen | 1 | 3 | 8 | $1,320 |
 | 5 | Catalog Management | 1 | 1 | 16 | $2,640 |
-| 6 | Frontend | 1, 5 | 4 | 30 | $4,950 |
+| 6 | PO Management | 1, 5 | 4 | 0 | $0 |
+| 7 | Frontend | 1, 5, 6 | 18 | 30 | $4,950 |
+| 8 | Test | 1 | 2 | 0 | $0 |
 
 ### Totals
 
 | Category | Tasks | Hours | Cost |
 |----------|-------|-------|------|
-| **Required** | 8 | 70 | $11,550 |
-| **Optional (⭐)** | 7 | 26 | $4,290 |
-| **GRAND TOTAL (Dev)** | **15** | **96** | **$15,840** |
+| **Required** | 35 | 70 | $11,550 |
+| **Optional (⭐)** | 8 | 26 | $4,290 |
+| **GRAND TOTAL (Dev)** | **43** | **96** | **$15,840** |
 
 **Notes:**
 - Optional items are marked with ⭐ and can be deferred. They total 26 dev hours.
 - Phase 3 (Vendor Integration — Costco) is entirely optional.
-- Features with no estimated effort have been removed from this version; their scope is folded into the related task descriptions.
+- Several line items are scoped at 0 days: they are sub-steps whose effort is captured by their parent build task (the PO management build effort sits under Frontend; backend PO management and Test are listed for scope clarity).
 
 ---
 
@@ -79,7 +81,9 @@
 | Authentication (login, password reset) — no registration | 0.5 d | 4 | $660 |
 | Audit trail on all user actions in the platform | 1 d | 8 | $1,320 |
 | Branches management (LCRUA) | 0.25 d | 2 | $330 |
-| User management (LCRUA, assignation to N branches) | 0.25 d | 2 | $330 |
+| User management | 0.25 d | 2 | $330 |
+| User management — LCRUA | — | 0 | $0 |
+| User management — Assignation to N branches | — | 0 | $0 |
 
 **Phase 1 Total:** 16 hours · $2,640
 
@@ -87,11 +91,15 @@
 
 ### Phase 2: Vendor Integration — Sysco
 **Status:** REQUIRED
-**Goal:** Submit purchase orders to Sysco via SFTP / API
+**Goal:** Submit purchase orders to Sysco via SFTP / API, with acknowledgement and invoice reception
 
 | Task | Size | Hours | Cost |
 |------|------|-------|------|
-| Sysco PO submission integration (SFTP / API; per-branch config: client #, contact, API key; EDI layer; acknowledgement and invoice-reception polling per PO) | 2 d | 16 | $2,640 |
+| Sysco PO submission integration (SFTP / API) | 2 d | 16 | $2,640 |
+| Manage integration per branch (client #, contact, API key) | — | 0 | $0 |
+| EDI integration layer — Sysco (deposit PO on their system) | — | 0 | $0 |
+| Acknowledgement polling job per PO | — | 0 | $0 |
+| Invoice reception polling job per PO | — | 0 | $0 |
 | Invoice link to PO ⭐ | 0.25 d | 2 | $330 |
 
 **Phase 2 Total:** 18 hours · $2,970
@@ -106,7 +114,8 @@
 
 | Task | Size | Hours | Cost |
 |------|------|-------|------|
-| Email integration — Costco (edit destination email / client # per branch, super admin only) ⭐ | 0.75 d | 6 | $990 |
+| Email integration — Costco ⭐ | 0.75 d | 6 | $990 |
+| Edit destination email / client # (super admin only) per branch | — | 0 | $0 |
 | Manually attach invoice to PO (file upload) ⭐ | 0.25 d | 2 | $330 |
 
 **Phase 3 Total:** 8 hours · $1,320 — OPTIONAL
@@ -119,7 +128,8 @@
 
 | Task | Size | Hours | Cost |
 |------|------|-------|------|
-| Email integration — Central Kitchen (edit destination email / client # per branch, super admin only) | 0.75 d | 6 | $990 |
+| Email integration — Central Kitchen | 0.75 d | 6 | $990 |
+| Edit destination email / client # (super admin only) per branch | — | 0 | $0 |
 | Manually attach invoice to PO (file upload) ⭐ | 0.25 d | 2 | $330 |
 
 **Phase 4 Total:** 8 hours · $1,320
@@ -138,18 +148,62 @@
 
 ---
 
-### Phase 6: Frontend
+### Phase 6: PO Management
 **Status:** REQUIRED
-**Goal:** User-facing interface for catalog and purchase-order management
+**Goal:** Create and manage purchase orders (backend)
 
 | Task | Size | Hours | Cost |
 |------|------|-------|------|
-| i18n (multi-language support) ⭐ | 1 d | 8 | $1,320 |
-| Consult audit trail ⭐ | 0.25 d | 2 | $330 |
-| Mobile responsiveness ⭐ | 0.5 d | 4 | $660 |
-| PO management (list, create, read; update / mark item as backordered; mark as draft vs send PO; search products by name, code, vendor) | 2 d | 16 | $2,640 |
+| List, Create, Read | — | 0 | $0 |
+| Update (mark item as backordered) | — | 0 | $0 |
+| Search products by name, code, vendor | — | 0 | $0 |
+| Support Drafting state ⭐ | — | 0 | $0 |
 
-**Phase 6 Total:** 30 hours · $4,950
+**Phase 6 Total:** 0 hours · $0
+
+> Back-ordered items are manually updated, not automatically detected. A chef can order from multiple vendors at once; the system splits POs by vendor.
+
+---
+
+### Phase 7: Frontend
+**Status:** REQUIRED
+**Goal:** User-facing interface for catalog, PO management, branches, users, and admin
+
+| Task | Size | Hours | Cost |
+|------|------|-------|------|
+| Design System | — | 0 | $0 |
+| i18n (multi-language support) ⭐ | 1 d | 8 | $1,320 |
+| User management | — | 0 | $0 |
+| Consult audit trail ⭐ | 0.25 d | 2 | $330 |
+| Authentication (login, password reset) — no registration | — | 0 | $0 |
+| Mobile responsiveness ⭐ | 0.5 d | 4 | $660 |
+| Catalog management (LCRUA) | — | 0 | $0 |
+| Branches management LCRUA (super admin only) | — | 0 | $0 |
+| User management (super admin only) | — | 0 | $0 |
+| User management — LCRUA | — | 0 | $0 |
+| User management — Assignation to N branches | — | 0 | $0 |
+| Catalog management | — | 0 | $0 |
+| LCRUA Products (list, add, edit, read, archive) | — | 0 | $0 |
+| PO management | 2 d | 16 | $2,640 |
+| PO — List, Create, Read | — | 0 | $0 |
+| PO — Update (mark item as backordered) | — | 0 | $0 |
+| PO — Mark as draft vs send PO | — | 0 | $0 |
+| PO — Search products by name, code, vendor | — | 0 | $0 |
+
+**Phase 7 Total:** 30 hours · $4,950
+
+---
+
+### Phase 8: Test
+**Status:** REQUIRED
+**Goal:** Testing across the platform
+
+| Task | Size | Hours | Cost |
+|------|------|-------|------|
+| Unit testing | — | 0 | $0 |
+| E2E tests | — | 0 | $0 |
+
+**Phase 8 Total:** 0 hours · $0
 
 ---
 

@@ -3,7 +3,7 @@ export const AUTH_TOKEN = "authenticated";
 
 const CREDENTIALS = {
   username: "chrono",
-  password: "ACE2026!",
+  password: "lucille2026",
 };
 
 export function validateCredentials(username: string, password: string): boolean {

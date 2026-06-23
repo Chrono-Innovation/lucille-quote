@@ -15,28 +15,6 @@ function slugify(name: string): string {
     .slice(0, 40);
 }
 
-// Owner pill. SM360-owned items stay in scope but are excluded from cost +
-// timeline. "mixed" only shows at phase level when its tasks disagree.
-function OwnerToggle({ state, onToggle }: { state: Owner | "mixed"; onToggle: () => void }) {
-  const label = state === "sm360" ? "SM360" : state === "mixed" ? "Mixed" : "Chrono";
-  const cls =
-    state === "sm360"
-      ? "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400"
-      : state === "mixed"
-        ? "bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300"
-        : "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400";
-  return (
-    <button
-      type="button"
-      onClick={(e) => { e.stopPropagation(); onToggle(); }}
-      title="Owner — SM360-owned items are excluded from cost & timeline. Click to toggle."
-      className={`inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full transition-colors hover:opacity-80 ${cls}`}
-    >
-      {label}
-    </button>
-  );
-}
-
 /** Task-level cross-phase dependencies. Key depends on values. */
 const TASK_DEPS: Record<string, string[]> = {};
 
@@ -290,55 +268,6 @@ export default function PhaseSelector({ phases }: { phases: Phase[] }) {
     [taskOwners, sm360Phases]
   );
 
-  const phaseOwnerState = useCallback(
-    (phase: Phase): Owner | "mixed" => {
-      if (phase.tasks.length === 0) return sm360Phases.has(phase.phase) ? "sm360" : "chrono";
-      const owners = phase.tasks.map((_, i) => effectiveTaskOwner(phase.phase, `${phase.phase}-${i}`));
-      if (owners.every((o) => o === "sm360")) return "sm360";
-      if (owners.every((o) => o === "chrono")) return "chrono";
-      return "mixed";
-    },
-    [effectiveTaskOwner, sm360Phases]
-  );
-
-  // Set phase owner — authoritative: clears all per-task overrides in that phase.
-  const setPhaseOwner = useCallback((phase: number, owner: Owner) => {
-    setSm360Phases((prev) => {
-      const next = new Set(prev);
-      if (owner === "sm360") next.add(phase);
-      else next.delete(phase);
-      return next;
-    });
-    setTaskOwners((prev) => {
-      const next = new Map(prev);
-      for (const k of [...next.keys()]) {
-        if (parseInt(k.split("-")[0], 10) === phase) next.delete(k);
-      }
-      return next;
-    });
-  }, []);
-
-  const togglePhaseOwner = useCallback(
-    (phase: Phase) => {
-      const state = phaseOwnerState(phase);
-      setPhaseOwner(phase.phase, state === "sm360" ? "chrono" : "sm360");
-    },
-    [phaseOwnerState, setPhaseOwner]
-  );
-
-  const toggleTaskOwner = useCallback(
-    (phase: number, taskIdx: number) => {
-      const key = `${phase}-${taskIdx}`;
-      setTaskOwners((prev) => {
-        const next = new Map(prev);
-        const curr = next.get(key) ?? (sm360Phases.has(phase) ? "sm360" : "chrono");
-        next.set(key, curr === "sm360" ? "chrono" : "sm360");
-        return next;
-      });
-    },
-    [sm360Phases]
-  );
-
   // --- URL sync: index-key ↔ name-slug maps -------------------------------
   // Internal keys are index-based (`${phase}-${idx}`) — fragile for sharing.
   // URL uses name-slugs; translate at the boundary. Within-phase collisions get ~N.
@@ -434,6 +363,22 @@ export default function PhaseSelector({ phases }: { phases: Phase[] }) {
   // -------------------------------------------------------------------------
 
   const [copied, setCopied] = useState(false);
+
+  // Presentational-only: hides all price values (headline + per-phase column).
+  // Default false = prices visible. Not synced to URL.
+  const [pricesHidden, setPricesHidden] = useState(false);
+
+  // Presentational-only: which phases are collapsed (task rows hidden). Empty =
+  // all expanded (default). Not synced to URL.
+  const [collapsedPhases, setCollapsedPhases] = useState<Set<number>>(new Set());
+
+  const toggleCollapse = useCallback((phase: number) => {
+    setCollapsedPhases((prev) => {
+      const next = new Set(prev);
+      if (next.has(phase)) next.delete(phase); else next.add(phase);
+      return next;
+    });
+  }, []);
 
   // Copies the current URL — the write effect keeps it in sync with selection,
   // so the link captures scope + owners exactly as they are now.
@@ -856,7 +801,7 @@ export default function PhaseSelector({ phases }: { phases: Phase[] }) {
       <div className="flex justify-between text-lg font-bold pt-1 text-zinc-900 dark:text-zinc-100">
         <span>Estimated Cost</span>
         <span className="font-mono text-blue-600 dark:text-blue-400">
-          ${totals.totalCost.toLocaleString()}
+          {pricesHidden ? "•••" : `$${totals.totalCost.toLocaleString()}`}
         </span>
       </div>
       {/* <div className="flex justify-between text-xs text-zinc-500 dark:text-zinc-400">
@@ -947,9 +892,34 @@ export default function PhaseSelector({ phases }: { phases: Phase[] }) {
             Clear
           </button>
           <button
+            type="button"
+            onClick={() => setPricesHidden((h) => !h)}
+            aria-pressed={pricesHidden}
+            aria-label={pricesHidden ? "Show prices" : "Hide prices"}
+            title={pricesHidden ? "Show all prices" : "Hide all prices"}
+            className="ml-auto text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 inline-flex items-center gap-1.5 px-2 py-2 transition-colors"
+          >
+            {pricesHidden ? (
+              <>
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Show prices
+              </>
+            ) : (
+              <>
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                </svg>
+                Hide prices
+              </>
+            )}
+          </button>
+          <button
             onClick={copyShareUrl}
             title="Copies a link to the current selection. The link captures the scope and owners exactly as they are now — later changes won't update an already-shared link."
-            className={`ml-auto inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-lg transition-colors ${
+            className={`inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-lg transition-colors ${
               copied
                 ? "bg-green-600 text-white"
                 : "text-zinc-700 dark:text-zinc-200 border border-zinc-300 dark:border-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-800"
@@ -999,17 +969,19 @@ export default function PhaseSelector({ phases }: { phases: Phase[] }) {
                       !hasOptional || optionalTaskIndices.every((i) => selectedTasks.has(`${phase.phase}-${i}`));
                     const phaseChecked = isPhaseSelected && allOptionalSelected;
                     const phaseIndeterminate = isPhaseSelected && hasOptional && !allOptionalSelected;
+                    const isCollapsed = collapsedPhases.has(phase.phase);
 
                     return (
                     <React.Fragment key={phase.phase}>
                       <tr
-                        onClick={() => !isLocked && togglePhaseFull(phase.phase)}
-                        className={`border-t border-zinc-300 dark:border-zinc-600 transition-colors ${
+                        onClick={() => toggleCollapse(phase.phase)}
+                        aria-expanded={!isCollapsed}
+                        className={`border-t border-zinc-300 dark:border-zinc-600 transition-colors cursor-pointer ${
                           isLocked
-                            ? "bg-blue-50/60 dark:bg-blue-950/20 cursor-not-allowed"
+                            ? "bg-blue-50/60 dark:bg-blue-950/20"
                             : isPhaseSelected
-                              ? "bg-blue-50/40 dark:bg-blue-950/20 cursor-pointer"
-                              : "hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer"
+                              ? "bg-blue-50/40 dark:bg-blue-950/20"
+                              : "hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
                         }`}
                       >
                         <td className="p-2 sm:p-3">
@@ -1018,19 +990,26 @@ export default function PhaseSelector({ phases }: { phases: Phase[] }) {
                             indeterminate={phaseIndeterminate}
                             disabled={isLocked}
                             onChange={() => togglePhaseFull(phase.phase)}
+                            onClick={(e) => e.stopPropagation()}
                             size="md"
                           />
                         </td>
                         <td className="p-2 sm:p-3 font-semibold text-zinc-900 dark:text-zinc-100">
+                          <svg
+                            aria-hidden="true"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                            className={`inline-block align-middle mr-1.5 w-3.5 h-3.5 text-zinc-400 shrink-0 transition-transform ${isCollapsed ? "" : "rotate-90"}`}
+                          >
+                            <path d="M6 4l4 4-4 4" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
                           <span className="font-mono text-zinc-500 dark:text-zinc-400 mr-2 text-xs">
                             {phase.phase}.
                           </span>
                           {phase.name}
                           <span className="flex flex-wrap items-center gap-1 mt-0.5">
-                            <OwnerToggle
-                              state={phaseOwnerState(phase)}
-                              onToggle={() => togglePhaseOwner(phase)}
-                            />
                             {phase.optional && (
                               <span className="inline-block text-xs font-normal px-2 py-0.5 bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 rounded-full">
                                 Optional Phase
@@ -1062,7 +1041,9 @@ export default function PhaseSelector({ phases }: { phases: Phase[] }) {
                         <td className="p-2 sm:p-3 hidden sm:table-cell"></td>
                         <td className="p-2 sm:p-3 text-right font-mono text-xs whitespace-nowrap text-zinc-900 dark:text-zinc-100">
                           {isPhaseSelected
-                            ? `$${(phaseLoadedCost.get(phase.phase) ?? 0).toLocaleString()}`
+                            ? pricesHidden
+                              ? "•••"
+                              : `$${(phaseLoadedCost.get(phase.phase) ?? 0).toLocaleString()}`
                             : <span className="text-zinc-400 dark:text-zinc-500">—</span>}
                         </td>
                         <td className="p-2 sm:p-3 text-xs text-zinc-500 dark:text-zinc-400 hidden md:table-cell">
@@ -1070,7 +1051,7 @@ export default function PhaseSelector({ phases }: { phases: Phase[] }) {
                         </td>
                       </tr>
 
-                      {phase.tasks.map((task, taskIdx) => {
+                      {!isCollapsed && phase.tasks.map((task, taskIdx) => {
                         const taskKey = `${phase.phase}-${taskIdx}`;
                         const isTaskDepLocked = !bypassed && lockedTasksBy.has(taskKey);
                         const effectiveOptional = bypassed || task.optional;
@@ -1105,10 +1086,6 @@ export default function PhaseSelector({ phases }: { phases: Phase[] }) {
                             <td className="p-2 sm:p-3 pl-6 sm:pl-10 text-zinc-700 dark:text-zinc-300 text-xs sm:text-sm">
                               <span className="break-words">{task.name}</span>
                               <span className="flex flex-wrap items-center gap-1 mt-0.5">
-                                <OwnerToggle
-                                  state={effectiveTaskOwner(phase.phase, taskKey)}
-                                  onToggle={() => toggleTaskOwner(phase.phase, taskIdx)}
-                                />
                                 {task.optional && !isTaskDepLocked && (
                                   <span className="inline-block text-[10px] font-medium px-1.5 py-0.5 bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 rounded-full">
                                     Optional

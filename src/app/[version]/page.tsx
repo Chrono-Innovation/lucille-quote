@@ -72,7 +72,7 @@ export default async function VersionPage({
           <div className="mt-6 sm:mt-8 p-3 sm:p-4 rounded-lg bg-white/5 border border-white/10 text-sm text-zinc-400 leading-relaxed max-w-3xl">
             This is a <strong className="text-zinc-200">high-level estimate</strong> for
             the <strong className="text-zinc-200">Purchase Order Management System</strong> phase,
-            covering required and optional scope items across 6 areas.
+            covering required and optional scope items across 8 areas.
             Optional items (⭐) can be deferred.
             An official quote will follow once the scope has been agreed upon.
           </div>
