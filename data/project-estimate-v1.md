@@ -14,16 +14,16 @@
 
 | Metric | Low | High |
 |--------|-----|------|
-| **Development** | 96 hours · $15,840 | 144 hours · $23,760 |
-| **Total** | **131 hours · $21,516** | **195 hours · $32,109** |
-| **With 15% Provisional** | **$24,743** | **$36,925** |
+| **Development** | 112 hours · $18,480 | 168 hours · $27,720 |
+| **Total** | **152 hours · $25,047** | **228 hours · $37,488** |
+| **With 15% Provisional** | **$28,804** | **$43,111** |
 
 > Feature costs are fully loaded — project management and QA are distributed proportionally across the features.
 
 **Rate:** $165/hour
 **FTE:** 1.5 developers
 
-**Required Scope:** 76 dev hours · **Optional Scope (⭐):** 20 dev hours
+**Required Scope:** 92 dev hours · **Optional Scope (⭐):** 20 dev hours
 
 **Monthly Recurring:** Hosting and Support (SLA) on Chrono managed infrastructure — at the client's charge (TBD)
 
@@ -47,7 +47,7 @@
 | 2 | Vendor Integration — Sysco | 1 | 6 | 18 | $2,970 |
 | 3 | Vendor Integration — Costco | 1 | 3 | 8 | $1,320 |
 | 4 | Vendor Integration — Central Kitchen | 1 | 3 | 8 | $1,320 |
-| 5 | Catalog Management | 1 | 1 | 16 | $2,640 |
+| 5 | Catalog Management | 1 | 3 | 32 | $5,280 |
 | 6 | PO Management | 1, 5 | 4 | 0 | $0 |
 | 7 | Frontend | 1, 5, 6 | 18 | 30 | $4,950 |
 | 8 | Test | 1 | 2 | 0 | $0 |
@@ -56,9 +56,9 @@
 
 | Category | Tasks | Hours | Cost |
 |----------|-------|-------|------|
-| **Required** | 36 | 76 | $12,540 |
+| **Required** | 38 | 92 | $15,180 |
 | **Optional (⭐)** | 7 | 20 | $3,300 |
-| **GRAND TOTAL (Dev)** | **43** | **96** | **$15,840** |
+| **GRAND TOTAL (Dev)** | **45** | **112** | **$18,480** |
 
 **Notes:**
 - Optional items are marked with ⭐ and can be deferred. They total 26 dev hours.
@@ -139,8 +139,10 @@
 | Task | Size | Hours | Cost |
 |------|------|-------|------|
 | Catalog management — LCRUA Produit (list, add, edit, read, archive) | 2 d | 16 | $2,640 |
+| Preferred supplier with fallback system | 1 d | 8 | $1,320 |
+| Automatic system to send PO to the next preferred supplier | 1 d | 8 | $1,320 |
 
-**Phase 5 Total:** 16 hours · $2,640
+**Phase 5 Total:** 32 hours · $5,280
 
 ---
 

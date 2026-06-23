@@ -846,13 +846,6 @@ export default function PhaseSelector({ phases }: { phases: Phase[] }) {
             style={{ width: `${timelineBarPct}%` }}
           />
         </div>
-
-        <p className="text-xs text-zinc-500 dark:text-zinc-400">
-          {totals.workingDays > 0 ? `~${Math.round(totals.workingDays)} working days · 1.5 FTE` : "No tasks selected"}
-        </p>
-        <p className="text-xs text-zinc-400 dark:text-zinc-500">
-          Based on selected effort at 1.5 FTE (8h/day), high-range (contingency) estimate.
-        </p>
       </div>
     </div>
   );
