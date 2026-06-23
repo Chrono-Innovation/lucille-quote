@@ -22,8 +22,6 @@
 
 **Rate:** $165/hour
 **FTE:** 1.5 developers
-**Contingency:** 145% applied to base hours for the high range
-**Estimated Timeline:** ~11-16 working days (~2.2-3.25 weeks) at 1.5 FTE
 
 **Required Scope:** 76 dev hours · **Optional Scope (⭐):** 20 dev hours
 
@@ -33,7 +31,6 @@
 
 ## Estimation Methodology
 
-**Contingency Factor:** 145% applied to base hours to produce the high-range estimate
 **Rate:** $165/hour (all roles)
 **PM Overhead:** 20% of development effort (distributed across features)
 **QA Overhead:** 15% of development effort (distributed across features)
