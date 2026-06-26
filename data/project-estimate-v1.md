@@ -14,16 +14,16 @@
 
 | Metric | Low | High |
 |--------|-----|------|
-| **Development** | 112 hours · $18,480 | 168 hours · $27,720 |
-| **Total** | **152 hours · $25,047** | **228 hours · $37,488** |
-| **With 15% Provisional** | **$28,804** | **$43,111** |
+| **Development** | 108 hours · $17,820 | 162 hours · $26,730 |
+| **Total** | **147 hours · $24,123** | **220 hours · $36,185** |
+| **With 15% Provisional** | **$27,741** | **$41,613** |
 
 > Feature costs are fully loaded — project management and QA are distributed proportionally across the features.
 
 **Rate:** $165/hour
 **FTE:** 1.5 developers
 
-**Required Scope:** 92 dev hours · **Optional Scope (⭐):** 20 dev hours
+**Required Scope:** 88 dev hours · **Optional Scope (⭐):** 20 dev hours
 
 **Monthly Recurring:** Hosting and Support (SLA) on Chrono managed infrastructure — at the client's charge (TBD)
 
@@ -43,12 +43,12 @@
 
 | Phase | Name | Dependency | Tasks | Hours | Cost |
 |-------|------|------------|-------|-------|------|
-| 1 | Backend | Mandatory | 6 | 16 | $2,640 |
+| 1 | Backend | Mandatory | 6 | 8 | $1,320 |
 | 2 | Vendor Integration — Sysco | 1 | 6 | 18 | $2,970 |
 | 3 | Vendor Integration — Costco | 1 | 3 | 8 | $1,320 |
 | 4 | Vendor Integration — Central Kitchen | 1 | 3 | 8 | $1,320 |
-| 5 | Catalog Management | 1 | 3 | 32 | $5,280 |
-| 6 | PO Management | 1, 5 | 4 | 0 | $0 |
+| 5 | Catalog Management | 1 | 3 | 28 | $4,620 |
+| 6 | PO Management | 1, 5 | 4 | 8 | $1,320 |
 | 7 | Frontend | 1, 5, 6 | 18 | 30 | $4,950 |
 | 8 | Test | 1 | 2 | 0 | $0 |
 
@@ -56,12 +56,12 @@
 
 | Category | Tasks | Hours | Cost |
 |----------|-------|-------|------|
-| **Required** | 38 | 92 | $15,180 |
+| **Required** | 38 | 88 | $14,520 |
 | **Optional (⭐)** | 7 | 20 | $3,300 |
-| **GRAND TOTAL (Dev)** | **45** | **112** | **$18,480** |
+| **GRAND TOTAL (Dev)** | **45** | **108** | **$17,820** |
 
 **Notes:**
-- Optional items are marked with ⭐ and can be deferred. They total 26 dev hours.
+- Optional items are marked with ⭐ and can be deferred. They total 20 dev hours.
 - Several line items are scoped at 0 days: they are sub-steps whose effort is captured by their parent build task (the PO management build effort sits under Frontend; backend PO management and Test are listed for scope clarity).
 
 ---
@@ -75,13 +75,13 @@
 | Task | Size | Hours | Cost |
 |------|------|-------|------|
 | Authentication (login, password reset) — no registration | S | 4 | $660 |
-| Audit trail on all user actions in the platform | M | 8 | $1,320 |
+| Audit trail on all user actions in the platform | XS | 0 | $0 |
 | Branches management (LCRUA) | S | 2 | $330 |
 | User management | S | 2 | $330 |
-| User management — LCRUA | — | 0 | $0 |
-| User management — Assignation to N branches | — | 0 | $0 |
+| User management — LCRUA | XS | 0 | $0 |
+| User management — Assignation to N branches | XS | 0 | $0 |
 
-**Phase 1 Total:** 16 hours · $2,640
+**Phase 1 Total:** 8 hours · $1,320
 
 ---
 
@@ -92,10 +92,10 @@
 | Task | Size | Hours | Cost |
 |------|------|-------|------|
 | Sysco PO submission integration (SFTP / API) | L | 16 | $2,640 |
-| Manage integration per branch (client #, contact, API key) | — | 0 | $0 |
-| EDI integration layer — Sysco (deposit PO on their system) | — | 0 | $0 |
-| Acknowledgement polling job per PO | — | 0 | $0 |
-| Invoice reception polling job per PO | — | 0 | $0 |
+| Manage integration per branch (client #, contact, API key) | XS | 0 | $0 |
+| EDI integration layer — Sysco (deposit PO on their system) | XS | 0 | $0 |
+| Acknowledgement polling job per PO | XS | 0 | $0 |
+| Invoice reception polling job per PO | XS | 0 | $0 |
 | Invoice link to PO ⭐ | S | 2 | $330 |
 
 **Phase 2 Total:** 18 hours · $2,970
@@ -111,7 +111,7 @@
 | Task | Size | Hours | Cost |
 |------|------|-------|------|
 | Email integration — Costco | M | 6 | $990 |
-| Edit destination email / client # (super admin only) per branch | — | 0 | $0 |
+| Edit destination email / client # (super admin only) per branch | XS | 0 | $0 |
 | Manually attach invoice to PO (file upload) ⭐ | S | 2 | $330 |
 
 **Phase 3 Total:** 8 hours · $1,320
@@ -125,7 +125,7 @@
 | Task | Size | Hours | Cost |
 |------|------|-------|------|
 | Email integration — Central Kitchen | M | 6 | $990 |
-| Edit destination email / client # (super admin only) per branch | — | 0 | $0 |
+| Edit destination email / client # (super admin only) per branch | XS | 0 | $0 |
 | Manually attach invoice to PO (file upload) ⭐ | S | 2 | $330 |
 
 **Phase 4 Total:** 8 hours · $1,320
@@ -139,10 +139,10 @@
 | Task | Size | Hours | Cost |
 |------|------|-------|------|
 | Catalog management — LCRUA Produit (list, add, edit, read, archive) | L | 16 | $2,640 |
-| Preferred supplier with fallback system | M | 8 | $1,320 |
+| Preferred supplier with fallback system | S | 4 | $660 |
 | Automatic system to send PO to the next preferred supplier | M | 8 | $1,320 |
 
-**Phase 5 Total:** 32 hours · $5,280
+**Phase 5 Total:** 28 hours · $4,620
 
 ---
 
@@ -152,12 +152,12 @@
 
 | Task | Size | Hours | Cost |
 |------|------|-------|------|
-| List, Create, Read | — | 0 | $0 |
-| Update (mark item as backordered) | — | 0 | $0 |
-| Search products by name, code, vendor | — | 0 | $0 |
-| Support Drafting state ⭐ | — | 0 | $0 |
+| List, Create, Read | S | 4 | $660 |
+| Update (mark item as backordered) | S | 4 | $660 |
+| Search products by name, code, vendor | XS | 0 | $0 |
+| Support Drafting state ⭐ | XS | 0 | $0 |
 
-**Phase 6 Total:** 0 hours · $0
+**Phase 6 Total:** 8 hours · $1,320
 
 > Back-ordered items are manually updated, not automatically detected. A chef can order from multiple vendors at once; the system splits POs by vendor.
 
@@ -169,24 +169,24 @@
 
 | Task | Size | Hours | Cost |
 |------|------|-------|------|
-| Design System | — | 0 | $0 |
+| Design System | XS | 0 | $0 |
 | i18n (multi-language support) ⭐ | M | 8 | $1,320 |
-| User management | — | 0 | $0 |
+| User management | XS | 0 | $0 |
 | Consult audit trail ⭐ | S | 2 | $330 |
-| Authentication (login, password reset) — no registration | — | 0 | $0 |
+| Authentication (login, password reset) — no registration | XS | 0 | $0 |
 | Mobile responsiveness ⭐ | S | 4 | $660 |
-| Catalog management (LCRUA) | — | 0 | $0 |
-| Branches management LCRUA (super admin only) | — | 0 | $0 |
-| User management (super admin only) | — | 0 | $0 |
-| User management — LCRUA | — | 0 | $0 |
-| User management — Assignation to N branches | — | 0 | $0 |
-| Catalog management | — | 0 | $0 |
-| LCRUA Products (list, add, edit, read, archive) | — | 0 | $0 |
+| Catalog management (LCRUA) | XS | 0 | $0 |
+| Branches management LCRUA (super admin only) | XS | 0 | $0 |
+| User management (super admin only) | XS | 0 | $0 |
+| User management — LCRUA | XS | 0 | $0 |
+| User management — Assignation to N branches | XS | 0 | $0 |
+| Catalog management | XS | 0 | $0 |
+| LCRUA Products (list, add, edit, read, archive) | XS | 0 | $0 |
 | PO management | L | 16 | $2,640 |
-| PO — List, Create, Read | — | 0 | $0 |
-| PO — Update (mark item as backordered) | — | 0 | $0 |
-| PO — Mark as draft vs send PO | — | 0 | $0 |
-| PO — Search products by name, code, vendor | — | 0 | $0 |
+| PO — List, Create, Read | XS | 0 | $0 |
+| PO — Update (mark item as backordered) | XS | 0 | $0 |
+| PO — Mark as draft vs send PO | XS | 0 | $0 |
+| PO — Search products by name, code, vendor | XS | 0 | $0 |
 
 **Phase 7 Total:** 30 hours · $4,950
 
@@ -198,8 +198,8 @@
 
 | Task | Size | Hours | Cost |
 |------|------|-------|------|
-| Unit testing | — | 0 | $0 |
-| E2E tests | — | 0 | $0 |
+| Unit testing | XS | 0 | $0 |
+| E2E tests | XS | 0 | $0 |
 
 **Phase 8 Total:** 0 hours · $0
 
