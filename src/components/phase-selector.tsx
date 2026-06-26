@@ -239,23 +239,16 @@ export default function PhaseSelector({ phases }: { phases: Phase[] }) {
     [dependentMap]
   );
 
-  // Phase-level selection. Default = full scope (every phase). The mount-time
-  // URL-hydration effect overrides this when p/t/o params are present.
-  const [selectedPhases, setSelectedPhases] = useState<Set<number>>(() => {
-    return new Set(phases.map((p) => p.phase));
-  });
+  // Phase-level selection. Default = required only (every non-optional phase),
+  // mirroring selectAllRequired. The mount-time URL-hydration effect overrides
+  // this when p/t/o params are present.
+  const [selectedPhases, setSelectedPhases] = useState<Set<number>>(() =>
+    new Set(phases.filter((p) => !p.optional).map((p) => p.phase))
+  );
 
-  // Optional task selection (keys: "phaseNum-taskIdx"). Default = every optional
-  // task selected (mirrors selectAll), so a fresh no-params load shows full scope.
-  const [selectedTasks, setSelectedTasks] = useState<Set<string>>(() => {
-    const allOptional = new Set<string>();
-    for (const p of phases) {
-      p.tasks.forEach((t, i) => {
-        if (t.optional) allOptional.add(`${p.phase}-${i}`);
-      });
-    }
-    return allOptional;
-  });
+  // Optional task selection (keys: "phaseNum-taskIdx"). Default = none selected
+  // (mirrors selectAllRequired), so a fresh no-params load shows required-only scope.
+  const [selectedTasks, setSelectedTasks] = useState<Set<string>>(() => new Set());
 
   // Ownership. Default everything = chrono. sm360Phases = phase-level flips.
   // taskOwners = explicit per-task overrides (either direction).
@@ -368,9 +361,11 @@ export default function PhaseSelector({ phases }: { phases: Phase[] }) {
   // Default false = prices visible. Not synced to URL.
   const [pricesHidden, setPricesHidden] = useState(false);
 
-  // Presentational-only: which phases are collapsed (task rows hidden). Empty =
-  // all expanded (default). Not synced to URL.
-  const [collapsedPhases, setCollapsedPhases] = useState<Set<number>>(new Set());
+  // Presentational-only: which phases are collapsed (task rows hidden). Default =
+  // every phase collapsed. Not synced to URL, so load always starts collapsed.
+  const [collapsedPhases, setCollapsedPhases] = useState<Set<number>>(() =>
+    new Set(phases.map((p) => p.phase))
+  );
 
   const toggleCollapse = useCallback((phase: number) => {
     setCollapsedPhases((prev) => {
