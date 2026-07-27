@@ -246,9 +246,21 @@ export default function PhaseSelector({ phases }: { phases: Phase[] }) {
     new Set(phases.filter((p) => !p.optional).map((p) => p.phase))
   );
 
-  // Optional task selection (keys: "phaseNum-taskIdx"). Default = none selected
-  // (mirrors selectAllRequired), so a fresh no-params load shows required-only scope.
-  const [selectedTasks, setSelectedTasks] = useState<Set<string>>(() => new Set());
+  // Optional task selection (keys: "phaseNum-taskIdx"). Default = every vendor
+  // connector pre-selected (they're optional so the client can drop one, but the
+  // vendor list they gave us should show priced-in out of the box); every other
+  // optional stays unselected, mirroring selectAllRequired.
+  const [selectedTasks, setSelectedTasks] = useState<Set<string>>(() => {
+    const defaults = new Set<string>();
+    for (const p of phases) {
+      p.tasks.forEach((t, i) => {
+        if (t.optional && /connector/i.test(t.name)) {
+          defaults.add(`${p.phase}-${i}`);
+        }
+      });
+    }
+    return defaults;
+  });
 
   // Ownership. Default everything = chrono. sm360Phases = phase-level flips.
   // taskOwners = explicit per-task overrides (either direction).
