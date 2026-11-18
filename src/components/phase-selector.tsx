@@ -45,6 +45,11 @@ function getTransitiveTaskDependents(taskKey: string): Set<string> {
   return result;
 }
 
+function taskDevHoursHigh(t: { hours: number; fixedPrice?: number }): number {
+  if (t.fixedPrice !== undefined) return t.fixedPrice / (165 * 1.35);
+  return Math.ceil(t.hours * 1.45);
+}
+
 function parseDeps(dep: string): number[] {
   if (!dep || dep === "Mandatory") return [];
   return dep
@@ -239,24 +244,20 @@ export default function PhaseSelector({ phases }: { phases: Phase[] }) {
     [dependentMap]
   );
 
-  // Phase-level selection. Default = required only (every non-optional phase),
-  // mirroring selectAllRequired. The mount-time URL-hydration effect overrides
-  // this when p/t/o params are present.
-  const [selectedPhases, setSelectedPhases] = useState<Set<number>>(() =>
-    new Set(phases.filter((p) => !p.optional).map((p) => p.phase))
+  // Phase-level selection. Default = full scope (every phase), mirroring
+  // selectAll. The mount-time URL-hydration effect overrides this when p/t/o
+  // params are present.
+  const [selectedPhases, setSelectedPhases] = useState<Set<number>>(
+    () => new Set(phases.map((p) => p.phase))
   );
 
-  // Optional task selection (keys: "phaseNum-taskIdx"). Default = every vendor
-  // connector pre-selected (they're optional so the client can drop one, but the
-  // vendor list they gave us should show priced-in out of the box); every other
-  // optional stays unselected, mirroring selectAllRequired.
+  // Optional task selection (keys: "phaseNum-taskIdx"). Default = every
+  // optional task, mirroring selectAll.
   const [selectedTasks, setSelectedTasks] = useState<Set<string>>(() => {
     const defaults = new Set<string>();
     for (const p of phases) {
       p.tasks.forEach((t, i) => {
-        if (t.optional && /connector/i.test(t.name)) {
-          defaults.add(`${p.phase}-${i}`);
-        }
+        if (t.optional) defaults.add(`${p.phase}-${i}`);
       });
     }
     return defaults;
@@ -306,6 +307,7 @@ export default function PhaseSelector({ phases }: { phases: Phase[] }) {
     const pRaw = params.get("p");
     const tRaw = params.get("t");
     const oRaw = params.get("o");
+    if (params.get("admin") === "1") setShowPriceToggle(true);
 
     if (pRaw !== null) {
       setSelectedPhases(new Set(
@@ -369,9 +371,11 @@ export default function PhaseSelector({ phases }: { phases: Phase[] }) {
 
   const [copied, setCopied] = useState(false);
 
-  // Presentational-only: hides all price values (headline + per-phase column).
-  // Default false = prices visible. Not synced to URL.
-  const [pricesHidden, setPricesHidden] = useState(false);
+  // Presentational-only: hides line prices of required tasks.
+  // Default = hidden, toggle not shown (client-facing). `?admin=1` shows the
+  // toggle. Cosmetic only: data stays in the page.
+  const [pricesHidden, setPricesHidden] = useState(true);
+  const [showPriceToggle, setShowPriceToggle] = useState(false);
 
   // Presentational-only: which phases are collapsed (task rows hidden). Default =
   // every phase collapsed. Not synced to URL, so load always starts collapsed.
@@ -391,7 +395,10 @@ export default function PhaseSelector({ phases }: { phases: Phase[] }) {
   // so the link captures scope + owners exactly as they are now.
   const copyShareUrl = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText(window.location.href);
+      // Shared links never carry the admin toggle.
+      const url = new URL(window.location.href);
+      url.searchParams.delete("admin");
+      await navigator.clipboard.writeText(url.toString());
     } catch {
       return; // clipboard blocked (insecure context / denied) — no-op
     }
@@ -651,6 +658,14 @@ export default function PhaseSelector({ phases }: { phases: Phase[] }) {
       leftover--;
     }
 
+    // Fixed-price lines (0 h in the source) override the formula. They sit
+    // outside the anchor, so they never shift any other line's price.
+    for (const p of phases) {
+      p.tasks.forEach((t, i) => {
+        if (t.fixedPrice !== undefined) result.set(`${p.phase}-${i}`, t.fixedPrice);
+      });
+    }
+
     return result;
   }, [phases, HOURLY_RATE]);
 
@@ -662,7 +677,7 @@ export default function PhaseSelector({ phases }: { phases: Phase[] }) {
     let fullDevHoursHigh = 0;
     for (const p of phases) {
       for (const t of p.tasks) {
-        fullDevHoursHigh += Math.ceil(t.hours * 1.45);
+        fullDevHoursHigh += taskDevHoursHigh(t);
       }
     }
     const fullTotalHoursHigh =
@@ -695,7 +710,7 @@ export default function PhaseSelector({ phases }: { phases: Phase[] }) {
           optionalHours += t.hours;
         }
         totalCost += taskLoadedPrice.get(key) ?? 0;
-        devHoursHigh += Math.ceil(t.hours * 1.45);
+        devHoursHigh += taskDevHoursHigh(t);
       });
     }
 
@@ -808,7 +823,7 @@ export default function PhaseSelector({ phases }: { phases: Phase[] }) {
       <div className="flex justify-between text-lg font-bold pt-1 text-zinc-900 dark:text-zinc-100">
         <span>Estimated Cost</span>
         <span className="font-mono text-blue-600 dark:text-blue-400">
-          {pricesHidden ? "•••" : `$${totals.totalCost.toLocaleString()}`}
+          {`$${totals.totalCost.toLocaleString()}`}
         </span>
       </div>
       {/* <div className="flex justify-between text-xs text-zinc-500 dark:text-zinc-400">
@@ -891,6 +906,7 @@ export default function PhaseSelector({ phases }: { phases: Phase[] }) {
           >
             Clear
           </button>
+          {showPriceToggle && (
           <button
             type="button"
             onClick={() => setPricesHidden((h) => !h)}
@@ -916,6 +932,7 @@ export default function PhaseSelector({ phases }: { phases: Phase[] }) {
               </>
             )}
           </button>
+          )}
           <button
             onClick={copyShareUrl}
             title="Copies a link to the current selection. The link captures the scope and owners exactly as they are now — later changes won't update an already-shared link."
@@ -1010,6 +1027,11 @@ export default function PhaseSelector({ phases }: { phases: Phase[] }) {
                           </span>
                           {phase.name}
                           <span className="flex flex-wrap items-center gap-1 mt-0.5">
+                            {phase.isNew && (
+                              <span className="inline-block text-xs font-normal px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 rounded-full">
+                                New
+                              </span>
+                            )}
                             {phase.optional && (
                               <span className="inline-block text-xs font-normal px-2 py-0.5 bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 rounded-full">
                                 Optional Phase
@@ -1040,10 +1062,9 @@ export default function PhaseSelector({ phases }: { phases: Phase[] }) {
                         </td>
                         <td className="p-2 sm:p-3 hidden sm:table-cell"></td>
                         <td className="p-2 sm:p-3 text-right font-mono text-xs whitespace-nowrap text-zinc-900 dark:text-zinc-100">
+                          {/* Section prices stay visible even in Hide prices mode. */}
                           {isPhaseSelected
-                            ? pricesHidden
-                              ? "•••"
-                              : `$${(phaseLoadedCost.get(phase.phase) ?? 0).toLocaleString()}`
+                            ? `$${(phaseLoadedCost.get(phase.phase) ?? 0).toLocaleString()}`
                             : <span className="text-zinc-400 dark:text-zinc-500">—</span>}
                         </td>
                         <td className="p-2 sm:p-3 text-xs text-zinc-500 dark:text-zinc-400 hidden md:table-cell">
@@ -1058,12 +1079,23 @@ export default function PhaseSelector({ phases }: { phases: Phase[] }) {
                         const isTaskActive = isPhaseSelected && (!effectiveOptional || selectedTasks.has(taskKey) || isTaskDepLocked);
                         const isTaskToggleable = isPhaseSelected && effectiveOptional && !isTaskDepLocked;
                         const isTaskLocked = isPhaseSelected && (!effectiveOptional || isTaskDepLocked);
+                        // Version-diff marker carried in the task name, e.g. "(V3 new …)".
+                        // "new" lines are unpriced (0 h) and need sizing; flag them loudly.
+                        const diffTag = task.isNew
+                          ? "new"
+                          : task.name.match(/\(V\d+ (changed|removed)\b/i)?.[1]?.toLowerCase();
 
                         return (
                           <tr
                             key={taskIdx}
                             onClick={() => isTaskToggleable && toggleTask(phase.phase, taskIdx)}
                             className={`border-t border-zinc-100 dark:border-zinc-800 transition-colors ${
+                              diffTag === "new"
+                                ? "shadow-[inset_3px_0_0_#10b981]"
+                                : diffTag === "changed"
+                                  ? "shadow-[inset_3px_0_0_#a78bfa]"
+                                  : ""
+                            } ${
                               !isPhaseSelected
                                 ? "opacity-40"
                                 : isTaskLocked
@@ -1086,6 +1118,21 @@ export default function PhaseSelector({ phases }: { phases: Phase[] }) {
                             <td className="p-2 sm:p-3 pl-6 sm:pl-10 text-zinc-700 dark:text-zinc-300 text-xs sm:text-sm">
                               <span className="break-words">{task.name}</span>
                               <span className="flex flex-wrap items-center gap-1 mt-0.5">
+                                {diffTag === "new" && (
+                                  <span className="inline-block text-[10px] font-semibold px-1.5 py-0.5 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 rounded-full">
+                                    New
+                                  </span>
+                                )}
+                                {diffTag === "changed" && (
+                                  <span className="inline-block text-[10px] font-semibold px-1.5 py-0.5 bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300 rounded-full">
+                                    Changed · check price
+                                  </span>
+                                )}
+                                {diffTag === "removed" && (
+                                  <span className="inline-block text-[10px] font-semibold px-1.5 py-0.5 bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 rounded-full">
+                                    Removed
+                                  </span>
+                                )}
                                 {task.optional && !isTaskDepLocked && (
                                   <span className="inline-block text-[10px] font-medium px-1.5 py-0.5 bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 rounded-full">
                                     Optional
@@ -1101,9 +1148,16 @@ export default function PhaseSelector({ phases }: { phases: Phase[] }) {
                               </span>
                             </td>
                             <td className="p-2 sm:p-3 text-center text-xs text-zinc-400 dark:text-zinc-500 hidden sm:table-cell">
-                              {task.size}
+                              {/* T-shirt sizes are not shown on lines, in either price mode. */}
                             </td>
-                            <td className="p-2 sm:p-3 text-right"></td>
+                            <td className="p-2 sm:p-3 text-right whitespace-nowrap">
+                              {/* Temporary per-line price chip, for validating line prices. */}
+                              {!(pricesHidden && !task.optional) && (
+                                <span className="inline-block font-mono text-[10px] px-1.5 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
+                                  ${(taskLoadedPrice.get(taskKey) ?? 0).toLocaleString()}
+                                </span>
+                              )}
+                            </td>
                             <td className="hidden md:table-cell"></td>
                           </tr>
                         );
