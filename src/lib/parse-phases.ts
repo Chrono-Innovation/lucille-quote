@@ -6,6 +6,11 @@ export interface Task {
   size: string;
   hours: number;
   optional: boolean;
+  /** Fixed loaded price (Cost cell "$1,000 fixed"). Bypasses the hours-based
+   *  formula so pricing a new line never shifts the other lines' prices. */
+  fixedPrice?: number;
+  /** Not present (by name) in the previous estimate version. */
+  isNew?: boolean;
 }
 
 export interface Phase {
@@ -15,6 +20,8 @@ export interface Phase {
   tasks: Task[];
   totalHours: number;
   optional: boolean;
+  /** Phase added in this version: its section Status line says "new phase". */
+  isNew?: boolean;
 }
 
 export interface EstimateVersion {
@@ -100,6 +107,11 @@ export function parsePhases(file = "project-estimate-v1.md"): Phase[] {
     const sectionIdx = lines.findIndex((l) => sectionPattern.test(l.trim()));
     if (sectionIdx === -1) continue;
 
+    const statusLine = lines
+      .slice(sectionIdx + 1, sectionIdx + 4)
+      .find((l) => l.trim().startsWith("**Status:**"));
+    if (statusLine && /new phase/i.test(statusLine)) phase.isNew = true;
+
     let inTable = false;
     for (let i = sectionIdx + 1; i < lines.length; i++) {
       const line = lines[i].trim();
@@ -128,14 +140,36 @@ export function parsePhases(file = "project-estimate-v1.md"): Phase[] {
 
       if (isNaN(hours)) continue;
 
+      const costCell = cells[3] ?? "";
+      const fixedPrice = /fixed/i.test(costCell)
+        ? parseFloat(costCell.replace(/[^0-9.]/g, ""))
+        : undefined;
+
       phase.tasks.push({
         name: taskName,
         size,
         hours,
         optional: taskOptional,
+        ...(fixedPrice !== undefined && !isNaN(fixedPrice) ? { fixedPrice } : {}),
       });
     }
   }
 
+  return phases;
+}
+
+/** Task name without version-diff notes, for matching lines across versions. */
+function taskKeyName(name: string): string {
+  return name.replace(/\s*\(V\d+ (new|changed|removed)\b[^)]*\)/gi, "").trim().toLowerCase();
+}
+
+/** Flag tasks whose name does not exist in the previous version's estimate. */
+export function markNewTasks(phases: Phase[], previous: Phase[]): Phase[] {
+  const known = new Set(previous.flatMap((p) => p.tasks.map((t) => taskKeyName(t.name))));
+  for (const p of phases) {
+    for (const t of p.tasks) {
+      if (!known.has(taskKeyName(t.name))) t.isNew = true;
+    }
+  }
   return phases;
 }

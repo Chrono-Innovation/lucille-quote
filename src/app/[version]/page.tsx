@@ -1,11 +1,14 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { parsePhases, discoverEstimates } from "@/lib/parse-phases";
+import { parsePhases, discoverEstimates, markNewTasks } from "@/lib/parse-phases";
 import { parseAssumptions } from "@/lib/parse-assumptions";
 import { logoutAction } from "@/lib/auth-actions";
 import PhaseSelector from "@/components/phase-selector";
 import AssumptionsPanel from "@/components/assumptions-panel";
 import EstimateTabsNav from "@/components/estimate-tabs";
+
+// Versions kept reachable by URL but not shown in the tab nav.
+const HIDDEN_TABS = ["v1"];
 
 export function generateStaticParams() {
   return discoverEstimates().map((e) => ({ version: e.label }));
@@ -21,7 +24,10 @@ export default async function VersionPage({
   const current = estimates.find((e) => e.label === version);
   if (!current) notFound();
 
-  const phases = parsePhases(current.file);
+  const previous = estimates[estimates.indexOf(current) - 1];
+  const phases = previous
+    ? markNewTasks(parsePhases(current.file), parsePhases(previous.file))
+    : parsePhases(current.file);
   const assumptions = parseAssumptions(current.file);
 
   return (
@@ -83,7 +89,7 @@ export default async function VersionPage({
         <img src="/shapes/star-blue.png" alt="" width={70} height={70} className="absolute top-[40%] left-0 opacity-[0.06] pointer-events-none select-none hidden lg:block" aria-hidden="true" />
         <img src="/shapes/clock-yellow.png" alt="" width={60} height={44} className="absolute bottom-[30%] right-0 opacity-[0.05] pointer-events-none select-none hidden xl:block" aria-hidden="true" />
         <img src="/shapes/pendulum.png" alt="" width={50} height={70} className="absolute bottom-[10%] left-0 opacity-[0.05] pointer-events-none select-none hidden xl:block" aria-hidden="true" />
-        <EstimateTabsNav versions={estimates} active={current.label} />
+        <EstimateTabsNav versions={estimates.filter((e) => !HIDDEN_TABS.includes(e.label))} active={current.label} />
         <PhaseSelector key={current.label} phases={phases} />
         <AssumptionsPanel groups={assumptions} />
       </main>
